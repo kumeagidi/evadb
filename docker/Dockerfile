@@ -15,6 +15,11 @@ RUN apt-get update && \
     apt-get autoclean -y && \
     rm -rf /var/cache/apt/* /var/lib/apt/lists/*
 
+# Install gcc and python3.9-dev
+RUN apt-get update && apt-get install -y \
+gcc \
+python3.9-dev
+
 # Install pip
 RUN curl -O https://bootstrap.pypa.io/get-pip.py && \
     python3.9 get-pip.py && \
