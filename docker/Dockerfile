@@ -17,9 +17,9 @@ RUN apt-get update && \
 
 # Install gcc and python3.9-dev
 RUN apt-get update && apt-get install -y \
-gcc \
-python3.9-dev
-
+    gcc \
+    python3.9-dev
+    
 # Install pip
 RUN curl -O https://bootstrap.pypa.io/get-pip.py && \
     python3.9 get-pip.py && \
@@ -38,4 +38,4 @@ RUN python3.9 -m pip install evadb
 EXPOSE 8803
 
 # Start EvaDB
-CMD ["eva_server"]
+CMD ["evadb_server"]
