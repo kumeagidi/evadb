@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: evadb-client-deployment
+  labels:
+    app: evadb-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: evadb-client
+      id: "0"
+  template:
+    metadata:
+      labels:
+        app: evadb-client
+        id: "0"
+    spec:
+      containers:
+      - name: evadb-client-container
+        image: kagidi6/evadb-client

@@ -37,5 +37,5 @@ RUN python3.9 -m pip install evadb
 # Expose the default port EvaDB runs on 
 EXPOSE 8803
 
-# Start EvaDB
-CMD ["evadb_server"]
+# Start EvaDB server
+CMD ["evadb_server", "--host", "0.0.0.0", "--port", "8803"]
