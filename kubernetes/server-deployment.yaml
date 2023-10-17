@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: evadb-deployment
+  labels:
+    app: evadb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: evadb
+      id: "0"
+  template:
+    metadata:
+      labels:
+        app: evadb
+        id: "0"
+    spec:
+      containers:
+      - name: evadb-container
+        image: kagidi6/evadb
+        ports:
+        - containerPort: 8803
