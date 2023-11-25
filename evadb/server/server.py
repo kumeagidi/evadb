@@ -22,6 +22,7 @@ from evadb.utils.logging_manager import logger
 
 
 class EvaServer:
+    _request_queue = None
     """
     Receives messages and offloads them to another task for processing them.
     """
@@ -30,6 +31,7 @@ class EvaServer:
         self._server = None
         self._clients = {}  # client -> (reader, writer)
         self._evadb = None
+        self._request_queue = None #  Queue used for concurrent queries
 
     async def start_evadb_server(
         self, db_dir: str, host: string, port: int, custom_db_uri: str = None
@@ -41,9 +43,13 @@ class EvaServer:
         hostname: hostname of the server
         port: port of the server
         """
+  
         from pprint import pprint
 
         pprint(f"EvaDB server started at host {host} and port {port}")
+
+        self._request_queue = asyncio.Queue()
+
         self._evadb = init_evadb_instance(db_dir, host, port, custom_db_uri)
 
         self._server = await asyncio.start_server(self.accept_client, host, port)
@@ -51,6 +57,9 @@ class EvaServer:
         # load built-in functions
         mode = self._evadb.catalog().get_configuration_catalog_value("mode")
         init_builtin_functions(self._evadb, mode=mode)
+
+        from evadb.server.command_handler import handle_requests
+        asyncio.create_task(handle_requests(self))
 
         async with self._server:
             await self._server.serve_forever()
@@ -94,8 +103,10 @@ class EvaServer:
 
                 logger.debug("Handle request")
                 from evadb.server.command_handler import handle_request
-
-                asyncio.create_task(handle_request(self._evadb, client_writer, message))
+                #* When a new request comes in from a client, we should add it to the queue.
+                #* Then we should add a new task that can handle these messages.
+                await self._request_queue.put((self._evadb, client_writer, message))
+                #asyncio.create_task(handle_request(self._evadb, client_writer, message))
 
         except Exception as e:
             logger.critical("Error reading from client.", exc_info=e)

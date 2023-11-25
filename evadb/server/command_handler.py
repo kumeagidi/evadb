@@ -27,6 +27,7 @@ from evadb.parser.statement import AbstractStatement
 from evadb.parser.utils import SKIP_BINDER_AND_OPTIMIZER_STATEMENTS
 from evadb.utils.logging_manager import logger
 from evadb.utils.stats import Timer
+import time
 
 
 def execute_statement(
@@ -66,7 +67,9 @@ def execute_query(
     Execute the query and return a result generator.
     """
     query_compile_time = Timer()
-
+    #* Adding a call to sleep here to check that we can sucessfully send in multiple queries to the server.
+    #* The server will process the queries one at a time and then return the result to the user.
+    time.sleep(2)
     with query_compile_time:
         stmt = Parser().parse(query)[0]
         res_batch = execute_statement(
@@ -144,3 +147,12 @@ async def handle_request(evadb: EvaDBDatabase, client_writer, request_message):
     client_writer.write(response_data)
 
     return response
+
+async def handle_requests(evadb_server):
+    while True:
+        #* Remove request from the queue. If there are no requests, this blocks.
+        evadb, client_writer, message  = await evadb_server._request_queue.get()
+        await handle_request(evadb, client_writer, message)
+
+
+
