@@ -150,7 +150,7 @@ async def handle_request(evadb: EvaDBDatabase, client_writer, request_message):
 
 async def handle_requests(evadb_server):
     while True:
-        #* Remove request from the queue. If there are no requests, this blocks.
+        # Remove request from the queue. If there are no requests, this call  blocks.
         evadb, client_writer, message  = await evadb_server._request_queue.get()
         await handle_request(evadb, client_writer, message)
 

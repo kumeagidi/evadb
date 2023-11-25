@@ -31,7 +31,6 @@ class EvaServer:
         self._server = None
         self._clients = {}  # client -> (reader, writer)
         self._evadb = None
-        self._request_queue = None #  Queue used for concurrent queries
 
     async def start_evadb_server(
         self, db_dir: str, host: string, port: int, custom_db_uri: str = None
@@ -58,6 +57,7 @@ class EvaServer:
         mode = self._evadb.catalog().get_configuration_catalog_value("mode")
         init_builtin_functions(self._evadb, mode=mode)
 
+        # Task to handle that can handle requests in queue.
         from evadb.server.command_handler import handle_requests
         asyncio.create_task(handle_requests(self))
 
@@ -103,10 +103,8 @@ class EvaServer:
 
                 logger.debug("Handle request")
                 from evadb.server.command_handler import handle_request
-                #* When a new request comes in from a client, we should add it to the queue.
-                #* Then we should add a new task that can handle these messages.
+                # When a new request comes in from a client, it to the queue.
                 await self._request_queue.put((self._evadb, client_writer, message))
-                #asyncio.create_task(handle_request(self._evadb, client_writer, message))
 
         except Exception as e:
             logger.critical("Error reading from client.", exc_info=e)

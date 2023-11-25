@@ -105,7 +105,7 @@ class EvaDBCursor(object):
     def __init__(self, connection):
         self._connection = connection
         self._evadb = connection._evadb
-        self._pending_query = False
+        #self._pending_query = False
         self._result = None
 
     async def execute_async(self, query: str):
