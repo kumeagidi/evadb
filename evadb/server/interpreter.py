@@ -119,5 +119,5 @@ async def handle_server_response(cursor):
     while True:
         # Gets response from server. If there are current no responses, this call blocks.
         response = await cursor.fetch_all_async()
-        sys.stdout.write(str(response)[0:200] + "\n")
+        sys.stdout.write(str(response) + "\n")
         sys.stdout.flush()

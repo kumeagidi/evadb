@@ -57,7 +57,7 @@ class EvaServer:
         mode = self._evadb.catalog().get_configuration_catalog_value("mode")
         init_builtin_functions(self._evadb, mode=mode)
 
-        # Task to handle that can handle requests in queue.
+        # task to handle requests in queue.
         from evadb.server.command_handler import handle_requests
         asyncio.create_task(handle_requests(self))
 
@@ -102,7 +102,6 @@ class EvaServer:
                     return
 
                 logger.debug("Handle request")
-                from evadb.server.command_handler import handle_request
                 # When a new request comes in from a client, it to the queue.
                 await self._request_queue.put((self._evadb, client_writer, message))
 

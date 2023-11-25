@@ -105,22 +105,17 @@ class EvaDBCursor(object):
     def __init__(self, connection):
         self._connection = connection
         self._evadb = connection._evadb
-        #self._pending_query = False
+        self._pending_query = False
         self._result = None
 
     async def execute_async(self, query: str):
         """
         Send query to the EvaDB server.
         """
-        # if self._pending_query:
-        #     raise SystemError(
-        #         "EvaDB does not support concurrent queries. \
-        #             Call fetch_all() to complete the pending query"
-        #     )
         query = self._multiline_query_transformation(query)
         self._connection._writer.write((query + "\n").encode())
         await self._connection._writer.drain()
-        #self._pending_query = True
+        self._pending_query = True
         return self
 
     async def fetch_one_async(self) -> Response:
